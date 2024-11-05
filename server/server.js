@@ -8,9 +8,14 @@ const path = require("path");
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 const doctorRoutes = require("./routes/doctorRoutes");
+const multer = require('multer')
+const upload =multer({dest:'uploads/'})
 
 const dotenv = require("dotenv");
 dotenv.config();
+
+
+
 
 connectDb();
 const app = express();
@@ -21,7 +26,7 @@ app.use(cors());
 
 app.use(errorHandler);
 
-app.use('/api/register', require("./routes/userRoutes"));
+app.use('/api/users', require("./routes/userRoutes"));
 app.use('/api/doctors', require("./routes/doctorRoutes"));
 
 // ERROR handling middleware
@@ -55,6 +60,13 @@ app.get("/allusers",(req,res)=>{
         ]
     })
 })
+
+app.post('/profile', upload.single('avatar'), function (req, res, next) {
+    console.log(req.body);
+    console.log(req.file);
+
+  })
+
 
 hbs.registerPartials(path.join(__dirname, '/views/partials'));
 
