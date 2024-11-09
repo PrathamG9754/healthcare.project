@@ -69,4 +69,14 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { registerUser, loginUser };
+const getAllUsers = asyncHandler(async (req, res) => {
+    // Fetch all users from the database
+    const users = await User.find().select("-password");  // Exclude the password field
+
+    res.status(200).json({
+        message: "Users fetched successfully",
+        users,
+    });
+});
+
+module.exports = { registerUser, loginUser, getAllUsers };
