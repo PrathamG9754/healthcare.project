@@ -1,0 +1,50 @@
+
+//getallusers
+Create a New Request:
+
+Click on the New Request button (top-left).
+Select GET as the HTTP method.
+Enter the URL for your /getallusers route:
+bash
+Copy code
+http://localhost:5000/api/users/getallusers
+Add Authorization Header:
+
+In the request window, go to the Headers tab.
+
+Add a new header with the key Authorization and the value as Bearer <your_jwt_token>.
+
+Example Header:
+
+Key: Authorization
+Value: Bearer your_jwt_token
+Replace your_jwt_token with the actual token you received from the /login route.
+
+response
+{
+  "message": "Users fetched successfully",
+  "users": [
+    {
+      "_id": "672edbb6524946a1a9bb724f",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "johndoe@example.com",
+      "age": 25,
+      "bloodGroup": "O+",
+      "gender": "Male",
+      "phoneNumber": 1234567890,
+      "createdAt": "2024-11-09T03:49:10.554Z",
+      "updatedAt": "2024-11-09T03:49:10.554Z",
+      "__v": 0
+    }
+  ]
+}
+
+//login --post
+http://localhost:3000/api/users/login
+
+{
+  "email": "johndoe@example.com",
+  "password": "password123"
+}
+
