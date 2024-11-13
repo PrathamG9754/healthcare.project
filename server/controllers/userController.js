@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../model/userModel");
 require("dotenv").config();
 
+// Register user
 const registerUser = asyncHandler(async (req, res) => {
     const { firstName, lastName, age, gender, bloodGroup, email, phoneNumber, password } = req.body;
 
@@ -34,6 +35,7 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(201).json({ message: "User registered successfully", user: newUser });
 });
 
+// Login user
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -44,14 +46,11 @@ const loginUser = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
     
     if (user && (await bcrypt.compare(password, user.password))) {
-        // Generate JWT token
         const token = jwt.sign(
             { id: user._id, email: user.email },
             process.env.PRIVATE_KEY,
-            { expiresIn: "1h" }  // Token expiration time
+            { expiresIn: "1h" }
         );
-
-        console.log(token)
 
         res.status(200).json({
             message: "Login successful",
@@ -69,14 +68,57 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 });
 
+// Get all users (admin or superuser access)
 const getAllUsers = asyncHandler(async (req, res) => {
-    // Fetch all users from the database
-    const users = await User.find().select("-password");  // Exclude the password field
-
+    const users = await User.find().select("-password");
     res.status(200).json({
         message: "Users fetched successfully",
         users,
     });
 });
 
-module.exports = { registerUser, loginUser, getAllUsers };
+// Get the current user's profile
+const getUserProfile = asyncHandler(async (req, res) => {
+    const userId = req.user.id;  // The user ID comes from the JWT token validation middleware
+
+    const user = await User.findById(userId).select("-password"); // Exclude password
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+
+    res.status(200).json({
+        message: "User profile fetched successfully",
+        user,
+    });
+});
+
+// Update the current user's profile
+const updateUserProfile = asyncHandler(async (req, res) => {
+    const userId = req.user.id;  // The user ID comes from the JWT token validation middleware
+    const { firstName, lastName, age, gender, bloodGroup, email, phoneNumber } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+
+    // Update the user's profile
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.age = age || user.age;
+    user.gender = gender || user.gender;
+    user.bloodGroup = bloodGroup || user.bloodGroup;
+    user.email = email || user.email;
+    user.phoneNumber = phoneNumber || user.phoneNumber;
+
+    await user.save();
+
+    res.status(200).json({
+        message: "User profile updated successfully",
+        user,
+    });
+});
+
+module.exports = { registerUser, loginUser, getAllUsers, getUserProfile, updateUserProfile };
